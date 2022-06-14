@@ -16,6 +16,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import models as vision_models
 
+from r3m import load_r3m
+
 import robomimic.utils.tensor_utils as TensorUtils
 import robomimic.utils.obs_utils as ObsUtils
 from robomimic.utils.python_utils import extract_class_init_kwargs_from_dict
@@ -499,6 +501,43 @@ class ResNet18Conv(ConvBase):
         header = '{}'.format(str(self.__class__.__name__))
         return header + '(input_channel={}, input_coord_conv={})'.format(self._input_channel, self._input_coord_conv)
 
+class R3m(ConvBase):
+    """
+    A R3m block that can be used to process input images.
+    """
+    def __init__(
+        self,
+        modelid="resnet50",
+        freeze_layers=True,
+    ):
+        """
+        Args:
+            modelid (str): underlying vision model to use (e.g. resnet18,
+                           resnet34, resnet50)
+            freeze_layers (bool): if True, disable gradient updates on the
+                                  on this vision encoder
+        """
+        super(R3m, self).__init__()
+        self.nets = load_r3m(modelid=modelid, freeze_layers=freeze_layers)
+
+        for param in self.nets.parameters():
+            param.requires_grad = not freeze_layers
+
+    def output_shape(self, input_shape):
+        """
+        Function to compute output shape from inputs to this module. 
+
+        Args:
+            input_shape (iterable of int): shape of input. Does not include batch dimension.
+                Some modules may not need this argument, if their output does not depend 
+                on the size of the input, or if they assume fixed size input.
+
+        Returns:
+            out_shape ([int]): list of integers corresponding to output shape
+        """
+
+        assert(len(input_shape) == 3)
+        return [2048]
 
 class CoordConv2d(nn.Conv2d, Module):
     """

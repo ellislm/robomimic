@@ -28,6 +28,8 @@ setup(
         "egl_probe>=1.0.1",
         "torch",
         "torchvision",
+        "r3m @ git+ssh://git@github.com/ellislm/r3m#egg=r3m',
+]
     ],
     eager_resources=['*'],
     include_package_data=True,
