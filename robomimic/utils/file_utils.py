@@ -460,8 +460,9 @@ def download_url(url, download_dir, check_overwrite=True):
     """
 
     # check if url is reachable. We need the sleep to make sure server doesn't reject subsequent requests
+    time.sleep(3)
     assert url_is_alive(url), "@download_url got unreachable url: {}".format(url)
-    time.sleep(0.5)
+    time.sleep(3)
 
     # infer filename from url link
     fname = url.split("/")[-1]
